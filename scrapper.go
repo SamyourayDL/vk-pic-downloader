@@ -8,22 +8,24 @@ import(
 	"net/http"
 	"strconv" //Itoa() - int to string
 	"regexp"
+	"time"
 )
 
 //config 
 var fileName int = 0
 var postsCount int = 100
-var offset int = 300
-var token string = "vk1.a.LykzmnvTBc9MxXPyTTbblPYZ9RSnNLY6DtHlGrhvVdUK0pXB9H_S-rr6-z3IdMhy0UDbjjZut9Z8zbucA19nHj6UQYDWMYb7ucVY80uzeHVWKi0fc9bnFbvrTc8dWlFSkHnOXp9sAaXZyROCqxDh7peUT2kof2PTyueIfYYodvM7ruEb1MpI90kgCy70mhDYBwCeSMUSzBydcFfFUOLrig" 
+var offset int = 0
+var token string = "vk1.a.22ckzC3IFBQcFVImlbdrRd5y7l4H9W-oOkT-s_pRgm-cpTrkYvYsZJ1qnnN9o69pTqCffcK8mIhtu08Hr6hI_Gyo3CV6uVds3uz4pukrTT7u3UgTDqRx46to6oU8fIGZdrPnrg-jIELBG6dV6qJJQx7SKU9aUbnFYpfTp-aI8Pefla2i_CS9ZBDQ4y6sUaAvOOdQ6MtdBoECcJy2oe9YBQ" 
 
 func main() {
+	start := time.Now()
 	//Change working dir to /Sciamano240
 	cwd, _ := os.Getwd() // /home/mazino/go/vk_scrap
-	err := os.Chdir(cwd+"/Sciamano240")
+	err := os.Chdir(cwd+"/seq_test")
 
 	//Make request to get #mircocabbia posts
 	vk := api.NewVK(token)
-	resp, err := vk.WallSearch(api.Params{
+	resp, err := vk.WallSearch(api.Params {
 		"owner_id": -123754724,
 		"query": "#mircocabbia",
 		"owners_only": true,
@@ -34,7 +36,7 @@ func main() {
 	}
 	
 	//Compile a regexp to find first #
-	r, _ := regexp.Compile("#[\w|@]+") // #([a-z,_,@,1-9]+)"
+	r, _ := regexp.Compile("#[\\w|@]+") // #([a-z,_,@,1-9]+)"
 	//Create a map[dirName]Counter
 	Names := make(map[string]int)
 
@@ -60,6 +62,8 @@ func main() {
 			Download(url, dirName, Names)
 		}
 	}
+	timeElapsed := time.Since(start)
+	fmt.Println(timeElapsed)
 }
 
 //map always passing by value, it won't copy the content
