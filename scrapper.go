@@ -34,7 +34,7 @@ func main() {
 	}
 	
 	//Compile a regexp to find first #
-	r, _ := regexp.Compile("#([a-z,_,@,1-9]+)")
+	r, _ := regexp.Compile("#[\w|@]+") // #([a-z,_,@,1-9]+)"
 	//Create a map[dirName]Counter
 	Names := make(map[string]int)
 
