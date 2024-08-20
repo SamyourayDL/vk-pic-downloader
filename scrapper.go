@@ -11,6 +11,7 @@ import(
 	"regexp"
 	"sync"
 	"path/filepath"
+	"time"
 )
 
 //config 
@@ -27,6 +28,8 @@ type RWMap struct {
 }
 
 func main() {
+	start := time.Now()
+
 	os.Mkdir(WorkingDir, 0700)
 	cwd, _ := os.Getwd()
 	cwd = filepath.Join(cwd, WorkingDir)
@@ -62,6 +65,8 @@ func main() {
 	}
 
 	wg.Wait()
+	timeElapsed := time.Since(start)
+	fmt.Println(timeElapsed)
 }
 
 func parsePost(Items []object.WallWallpost,  Names *RWMap, tickets chan int, wg *sync.WaitGroup) {
