@@ -1,7 +1,6 @@
 package main
 
 import(
-	"fmt"
 	"github.com/SevereCloud/vksdk/v3/api" //vk api
 	"github.com/SevereCloud/vksdk/v3/object" // for type []object.WallWallpost
 	"os" //file and dir creating
@@ -12,6 +11,7 @@ import(
 	"sync"
 	"path/filepath"
 	"time"
+	"log"
 )
 
 //config 
@@ -35,6 +35,8 @@ func main() {
 	cwd = filepath.Join(cwd, WorkingDir)
 	err := os.Chdir(cwd)
 
+	log.SetFlags(log.Ltime)
+	log.SetPrefix("mainroutine: ")
 
 	//Make request to get #mircocabbia posts
 	vk := api.NewVK(Token)
@@ -45,7 +47,7 @@ func main() {
 		"count": PostsCount,
 		"offset": Offset })
 	if err != nil {
-		fmt.Println("Error while making request")
+		log.Println("Error while making request")
 	}
 	
 	//Not sync.Map because we write a lot 
@@ -59,14 +61,17 @@ func main() {
 	close(tickets)	//no more writing in this chanel 
 	var wg sync.WaitGroup	//wait all goroutines to end before main goroutine end
 
+	log.SetPrefix("goroutine: ")	//new logs will be written from goroutines 
 	for i := 0; i < WorkerCount; i++ {
 		wg.Add(1)
 		go parsePost(resp.Items, &Names, tickets, &wg)	//important &wg - else deadlock 
 	}
 
 	wg.Wait()
+
+	log.SetPrefix("")
 	timeElapsed := time.Since(start)
-	fmt.Println(timeElapsed)
+	log.Println("Time spent: ", timeElapsed)
 }
 
 func parsePost(Items []object.WallWallpost,  Names *RWMap, tickets chan int, wg *sync.WaitGroup) {
@@ -99,18 +104,20 @@ func parsePost(Items []object.WallWallpost,  Names *RWMap, tickets chan int, wg 
 					biggestSize = size
 				}
 			}
-
-			Download(url, dirName, Names)
+			//maybe Attachments was empty and url is empty too 
+			if len(url) > 0 {
+				Download(url, dirName, Names)
+			}
 		}
 	}
-	fmt.Println("Worker end job!")
+	log.Println("Worker end job!")
 }
 
 //map always passing by value, it won't copy the content
 func Download(url string, dirName string, Names *RWMap) {
-	response, e := http.Get(url)
-	if e != nil {
-		fmt.Println("Downloading err")
+	response, err := http.Get(url)
+	if err != nil {
+		log.Println("Failed to download picture")
 	}
 	defer response.Body.Close()
 
@@ -123,13 +130,13 @@ func Download(url string, dirName string, Names *RWMap) {
 	file, err := os.Create(filepath.Join(cwd, dirName, name))
 
 	if err != nil {
-		fmt.Println("Failed to create a file")
+		log.Println("Failed to create a file")
 	}
 	defer file.Close()
 	
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		fmt.Println("Failed to Copy")
+		log.Println("Failed to Copy")
 	}
 
 	err = os.Chdir(cwd)
