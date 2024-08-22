@@ -14,12 +14,16 @@ import(
 	"log"
 )
 
+// Problem: rewriting dir and files in new iteration
+// Solution: - More accurate check that dir or 0.png already exists
+//   (ideas) - Add bd, make new dirs every launch, load everything in one launch
+
 //config 
 const PostsCount = 100
-const Offset = 0
+const Offset = 500
 const WorkerCount = 10
-const Token = "vk1.a.22ckzC3IFBQcFVImlbdrRd5y7l4H9W-oOkT-s_pRgm-cpTrkYvYsZJ1qnnN9o69pTqCffcK8mIhtu08Hr6hI_Gyo3CV6uVds3uz4pukrTT7u3UgTDqRx46to6oU8fIGZdrPnrg-jIELBG6dV6qJJQx7SKU9aUbnFYpfTp-aI8Pefla2i_CS9ZBDQ4y6sUaAvOOdQ6MtdBoECcJy2oe9YBQ" 
-const WorkingDir = "conc_test"
+const Token = "vk1.a.TSvxq5IdWoF4RAZhCi8LmpGKlPjg-CWw3QToomMji6qAXoc6KoxOQZx8I8TyhxmaKBkWpNxWzak2-hTJt_Qf1Ll7glmWsWhynfY-AuduOzjVZ-JLPjHDZrVFvzV38LzB0H_dtSbA0svntFz1R2J0mmU7ljQt-WfeV34PcljC7BXKZhB_cLOa7dMkmpnrjDUtzIEqvfhU8alnm2VFHUtROw" 
+const WorkingDir = "Sciamano240 2"
 var cwd string
 
 type RWMap struct {
@@ -29,8 +33,13 @@ type RWMap struct {
 
 func main() {
 	start := time.Now()
-
-	os.Mkdir(WorkingDir, 0700)
+	
+	//err - local, will delete after if 
+	if _, err := os.Stat(WorkingDir); os.IsNotExist(err) {
+		// path/to/whatever does not exist
+		os.Mkdir(WorkingDir, 0700)
+	}
+	
 	cwd, _ := os.Getwd()
 	cwd = filepath.Join(cwd, WorkingDir)
 	err := os.Chdir(cwd)
