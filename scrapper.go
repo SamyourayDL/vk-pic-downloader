@@ -92,16 +92,14 @@ func parsePost(Items []object.WallWallpost,  Names *RWMap, tickets chan int, wg 
 	for i := range tickets {	// Items[i] = post
 		dirName := r.FindString(Items[i].Text)
 
-		Names.m.RLock()
+		// It is all one big ifWrite
+		Names.m.Lock()
 		_, ok := Names.table[dirName]
-		Names.m.RUnlock()
-
 		if !ok {
-			Names.m.Lock()
 			Names.table[dirName] = 0
-			Names.m.Unlock()
 			os.Mkdir(dirName, 0700)
 		}
+		Names.m.Unlock()
 		
 		for _, attach := range Items[i].Attachments {	//Iterating over Attachments
 			var url string
