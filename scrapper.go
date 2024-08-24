@@ -1,4 +1,4 @@
-package main
+package scrapper
 
 import(
 	"github.com/SevereCloud/vksdk/v3/api" //vk api
@@ -23,12 +23,12 @@ const PostsCount = 100
 const Offset = 500
 const WorkerCount = 10
 const Token = "vk1.a.TSvxq5IdWoF4RAZhCi8LmpGKlPjg-CWw3QToomMji6qAXoc6KoxOQZx8I8TyhxmaKBkWpNxWzak2-hTJt_Qf1Ll7glmWsWhynfY-AuduOzjVZ-JLPjHDZrVFvzV38LzB0H_dtSbA0svntFz1R2J0mmU7ljQt-WfeV34PcljC7BXKZhB_cLOa7dMkmpnrjDUtzIEqvfhU8alnm2VFHUtROw" 
-const WorkingDir = "Sciamano240 2"
+const WorkingDir = "Sciamano240"
 var cwd string
 
 type RWMap struct {
 	table map[string]int
-	m sync.RWMutex
+	m sync.Mutex // need usual mutex, because every fileNumber must be unique
 }
 
 func main() {
